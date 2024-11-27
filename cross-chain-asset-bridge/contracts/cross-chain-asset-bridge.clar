@@ -1,30 +1,35 @@
-
 ;; title: cross-chain-asset-bridge
-;; version:
-;; summary:
-;; description:
 
-;; traits
-;;
+;; Constants
+(define-constant CONTRACT-OWNER tx-sender)
+(define-constant ERR-UNAUTHORIZED (err u1))
+(define-constant ERR-INSUFFICIENT-BALANCE (err u2))
+(define-constant ERR-TRANSFER-FAILED (err u3))
+(define-constant ERR-INVALID-CHAIN (err u4))
 
-;; token definitions
-;;
+;; Supported Chains Enum
+(define-constant CHAIN-BITCOIN u1)
+(define-constant CHAIN-ETHEREUM u2)
+(define-constant CHAIN-STACKS u3)
 
-;; constants
-;;
+;; Bridge Transaction States
+(define-constant TX-PENDING u0)
+(define-constant TX-CONFIRMED u1)
+(define-constant TX-COMPLETED u2)
 
-;; data vars
-;;
-
-;; data maps
-;;
-
-;; public functions
-;;
-
-;; read only functions
-;;
-
-;; private functions
-;;
+;; Cross-Chain Asset Mapping
+(define-map CrossChainAssets
+  {
+    asset-id: (buff 32),
+    source-chain: uint,
+    destination-chain: uint
+  }
+  {
+    amount: uint,
+    sender: principal,
+    receiver: principal,
+    status: uint,
+    timestamp: uint
+  }
+)
 
