@@ -33,3 +33,105 @@
   }
 )
 
+;; Supported Assets Registry
+(define-map SupportedAssets
+  (buff 32)  ;; Asset Identifier
+  {
+    name: (string-ascii 50),
+    decimals: uint,
+    is-enabled: bool
+  }
+)
+
+;; Bridge Liquidity Pool
+(define-map BridgeLiquidityPool
+  (buff 32)  ;; Asset Identifier 
+  {
+    total-liquidity: uint,
+    available-liquidity: uint
+  }
+)
+
+;; Register New Supported Asset
+(define-public (register-asset
+  (asset-id (buff 32))
+  (name (string-ascii 50))
+  (decimals uint)
+)
+  (begin
+    ;; Only contract owner can register assets
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+    
+    (map-set SupportedAssets 
+      asset-id 
+      {
+        name: name,
+        decimals: decimals,
+        is-enabled: true
+      }
+    )
+    
+    (ok true)
+  )
+)
+
+
+;; Initiate Cross-Chain Transfer
+(define-public (initiate-transfer
+  (asset-id (buff 32))
+  (amount uint)
+  (destination-chain uint)
+  (receiver principal)
+)
+  (let 
+    (
+      ;; Validate asset support and retrieve asset info
+      (asset-info 
+        (unwrap! 
+          (map-get? SupportedAssets asset-id) 
+          ERR-INVALID-CHAIN ;; Error if asset is not supported
+        )
+      )
+    )
+    
+    ;; Validate asset is enabled and destination chain is supported
+    (asserts! (get is-enabled asset-info) ERR-INVALID-CHAIN)  ;; New validation for asset enabled
+    (asserts! 
+      (or 
+        (is-eq destination-chain CHAIN-BITCOIN)     ;; New validation for supported destination chains
+        (is-eq destination-chain CHAIN-ETHEREUM)
+        (is-eq destination-chain CHAIN-STACKS)
+      ) 
+      ERR-INVALID-CHAIN
+    )
+
+    ;; Check liquidity and balance (placeholder for actual balance check)
+    (asserts! (>= amount u0) ERR-INSUFFICIENT-BALANCE) ;; New balance check (this is a placeholder)
+
+    ;; Record cross-chain transfer in CrossChainAssets map
+    (map-set CrossChainAssets 
+      {
+        asset-id: asset-id,
+        source-chain: CHAIN-STACKS,  ;; New source chain constant
+        destination-chain: destination-chain
+      }
+      {
+        amount: amount,
+        sender: tx-sender,
+        receiver: receiver,
+        status: TX-PENDING,           ;; New status constant
+        timestamp: stacks-block-height,       ;; Using block-height for timestamp
+      }
+    )
+
+    ;; Return success with transfer details
+    (ok {
+      status: "Transfer initiated", 
+      asset: asset-id, 
+      amount: amount, 
+      destination: destination-chain, 
+      receiver: receiver
+    })
+  )
+)
+
