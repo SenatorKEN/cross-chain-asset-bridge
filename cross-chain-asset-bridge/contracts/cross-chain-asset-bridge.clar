@@ -16,6 +16,7 @@
 (define-constant CHAIN-ETHEREUM u2)
 (define-constant CHAIN-STACKS u3)
 
+
 ;; Bridge Transaction States
 (define-constant TX-PENDING u0)
 (define-constant TX-CONFIRMED u1)
@@ -217,3 +218,59 @@
 )
 
 
+(define-map TransferHistory
+  (buff 32)  ;; Asset Identifier
+  {
+    transfer-id: (buff 32),
+    amount: uint,
+    sender: principal,
+    receiver: principal,
+    status: uint,
+    timestamp: uint
+  }
+)
+
+;; New Function to Log Events
+(define-public (log-event
+  (event-type (buff 32))
+  (data (buff 128))
+)
+  (begin
+    ;; Emit event using print
+    (print {
+      event-type: event-type,
+      data: data
+    })
+    (ok true)
+  )
+)
+
+;; Enhanced Error Handling
+(define-constant ERR-PAUSED (err u100))
+(define-constant ERR-MAINTENANCE (err u101))
+(define-constant ERR-RATE-LIMIT (err u102))
+
+;; Rate Limiting Mechanism
+(define-map transfer-limits 
+  principal 
+  { 
+    daily-limit: uint, 
+    current-volume: uint, 
+    last-reset: uint 
+  }
+)
+
+;; Advanced Fee Structure
+(define-map bridge-fees 
+  (buff 32)  ;; Asset ID
+  {
+    base-fee: uint,
+    percentage-fee: uint
+  }
+)
+
+;; Governance Mechanism
+(define-map contract-admins 
+  principal 
+  bool
+)
