@@ -185,3 +185,36 @@
   }
 )
 
+
+;; Upgrade Mechanism
+(define-data-var contract-version uint u1)
+
+;; Enhanced Initialization Function
+(define-public (initialize)
+  (begin
+    ;; Initial setup
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+    (map-set contract-admins CONTRACT-OWNER true)
+    (var-set contract-paused false)
+    (ok true)
+  )
+)
+
+;; Pause Contract
+(define-public (pause-contract)
+  (begin
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+    (var-set contract-paused true)
+    (ok true)
+  )
+)
+
+;; Unpause Contract
+(define-public (unpause-contract)
+  (begin
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+    (var-set contract-paused false)
+    (ok true)
+  )
+)
+
