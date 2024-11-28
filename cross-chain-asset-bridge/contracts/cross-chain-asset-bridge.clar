@@ -350,3 +350,61 @@
   }
 )
 
+;; Cross-Chain Interoperability Registry
+(define-map cross-chain-protocols 
+  uint  ;; Chain ID
+  {
+    protocol-name: (string-ascii 50),
+    supported-assets: (list 10 (buff 32)),
+    fee-structure: uint,
+    is-active: bool
+  }
+)
+
+;; Advanced Fee Management
+(define-map dynamic-fee-structure 
+  (buff 32)  ;; Asset ID
+  {
+    base-fee: uint,
+    percentage-fee: uint,
+    volume-based-discount: uint,
+    time-sensitive-fee: bool
+  }
+)
+
+;; Governance and Upgrade Mechanism
+(define-map upgrade-proposals 
+  uint 
+  {
+    proposal-id: uint,
+    proposer: principal,
+    new-contract-hash: (buff 32),
+    votes-for: uint,
+    votes-against: uint,
+    is-approved: bool,
+    expiration-block: uint
+  }
+)
+
+;; Insurance and Backup Mechanism
+(define-map bridge-insurance 
+  (buff 32)  ;; Asset ID
+  {
+    total-insurance-pool: uint,
+    coverage-percentage: uint,
+    last-claim-timestamp: uint,
+    max-claim-limit: uint
+  }
+)
+
+;; Advanced Access Control
+(define-map role-based-access 
+  principal 
+  {
+    is-admin: bool,
+    is-operator: bool,
+    is-auditor: bool,
+    permissions-level: uint
+  }
+)
+
