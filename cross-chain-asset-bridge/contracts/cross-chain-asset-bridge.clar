@@ -7,6 +7,9 @@
 (define-constant ERR-TRANSFER-FAILED (err u3))
 (define-constant ERR-INVALID-CHAIN (err u4))
 (define-constant ERR-LIQUIDITY-INSUFFICIENT (err u5))
+(define-constant ERR-ASSET-NOT-FOUND (err u6))
+(define-constant ERR-ASSET-ALREADY-REGISTERED (err u7))
+
 
 ;; Supported Chains Enum
 (define-constant CHAIN-BITCOIN u1)
@@ -52,6 +55,7 @@
     available-liquidity: uint
   }
 )
+
 
 ;; Register New Supported Asset
 (define-public (register-asset
@@ -181,4 +185,35 @@
     (ok true)
   )
 )
+
+;; Enable or Disable Asset
+(define-public (set-asset-status
+  (asset-id (buff 32))
+  (is-enabled bool)
+)
+  (begin
+    ;; Only contract owner can change asset status
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+
+    ;; Check if asset exists
+    (let ((asset-info (unwrap! (map-get? SupportedAssets asset-id) ERR-ASSET-NOT-FOUND)))
+      (map-set SupportedAssets asset-id 
+        {
+          name: (get name asset-info),
+          decimals: (get decimals asset-info),
+          is-enabled: is-enabled
+        }
+      )
+
+      ;; Emit event for asset status change using print
+      (print {
+        event-type: "asset-status-changed",
+        asset-id: asset-id,
+        is-enabled: is-enabled
+      })
+    )
+    (ok true)
+  )
+)
+
 
