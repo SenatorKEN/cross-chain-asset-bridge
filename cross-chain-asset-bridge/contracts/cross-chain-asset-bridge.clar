@@ -408,3 +408,44 @@
   }
 )
 
+;; Decentralized Identity Integration
+(define-map did-registry 
+  principal 
+  {
+    did-hash: (buff 32),
+    verification-status: bool,
+    last-verified: uint
+  }
+)
+
+
+(define-public (vote-on-proposal 
+  (proposal-id uint)
+  (vote bool)
+)
+  ;; Implement voting mechanism
+  (ok true)
+)
+
+;; Compliance Check Function
+(define-private (check-compliance 
+  (asset-id (buff 32))
+  (amount uint)
+  (sender principal)
+)
+  (let 
+    (
+      (compliance-rule 
+        (unwrap! 
+          (map-get? compliance-rules asset-id) 
+          false
+        )
+      )
+    )
+    ;; Implement comprehensive compliance checks
+    (and 
+      (<= amount (get max-transfer-amount compliance-rule))
+      (>= amount (get min-transfer-amount compliance-rule))
+    )
+  )
+)
