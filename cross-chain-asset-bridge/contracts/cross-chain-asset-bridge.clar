@@ -282,3 +282,71 @@
     (ok true)
   )
 )
+
+;; Enhanced Security Features
+(define-map whitelist-addresses 
+  principal 
+  { 
+    is-verified: bool, 
+    kyc-timestamp: uint 
+  }
+)
+
+;; Multi-Signature Wallet Control
+(define-map multi-sig-approvals 
+  { 
+    transaction-id: uint 
+  }
+  { 
+    required-signatures: uint,
+    current-signatures: uint,
+    signers: (list 5 principal),
+    is-executed: bool
+  }
+)
+
+;; Advanced Compliance Features
+(define-map compliance-rules 
+  (buff 32)  ;; Asset ID
+  {
+    max-transfer-amount: uint,
+    min-transfer-amount: uint,
+    geography-restricted: bool,
+    allowed-countries: (list 10 (string-ascii 2))
+  }
+)
+
+;; Risk Management Module
+(define-map risk-scoring 
+  principal 
+  {
+    risk-score: uint,
+    last-assessment: uint,
+    transaction-history: uint
+  }
+)
+
+;; Advanced Monitoring and Logging
+(define-map transaction-logs 
+  uint  ;; Transaction ID
+  {
+    asset-id: (buff 32),
+    sender: principal,
+    receiver: principal,
+    amount: uint,
+    timestamp: uint,
+    status: (string-ascii 20),
+    ip-address: (string-ascii 45)
+  }
+)
+
+;; Liquidity Mining and Rewards
+(define-map liquidity-rewards 
+  principal 
+  {
+    total-liquidity-provided: uint,
+    reward-points: uint,
+    last-reward-timestamp: uint
+  }
+)
+
