@@ -6,6 +6,7 @@
 (define-constant ERR-INSUFFICIENT-BALANCE (err u2))
 (define-constant ERR-TRANSFER-FAILED (err u3))
 (define-constant ERR-INVALID-CHAIN (err u4))
+(define-constant ERR-LIQUIDITY-INSUFFICIENT (err u5))
 
 ;; Supported Chains Enum
 (define-constant CHAIN-BITCOIN u1)
@@ -132,6 +133,52 @@
       destination: destination-chain, 
       receiver: receiver
     })
+  )
+)
+
+
+;; Deposit Liquidity
+(define-public (deposit-liquidity
+  (asset-id (buff 32))
+  (amount uint)
+)
+  (begin
+    ;; Only contract owner can deposit liquidity
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+
+    ;; Update liquidity pool
+    (let ((pool (unwrap! (map-get? BridgeLiquidityPool asset-id) (err u7))))
+      (map-set BridgeLiquidityPool asset-id 
+        {
+          total-liquidity: (+ (get total-liquidity pool) amount),
+          available-liquidity: (+ (get available-liquidity pool) amount)
+        }
+      ))
+    (ok true)
+  )
+)
+
+;; Withdraw Liquidity
+(define-public (withdraw-liquidity
+  (asset-id (buff 32))
+  (amount uint)
+)
+  (begin
+    ;; Only contract owner can withdraw liquidity
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+
+    ;; Check if enough liquidity is available
+    (let ((pool (unwrap! (map-get? BridgeLiquidityPool asset-id) (err u7))))
+      (asserts! (>= (get available-liquidity pool) amount) ERR-LIQUIDITY-INSUFFICIENT)
+      
+      ;; Update liquidity pool
+      (map-set BridgeLiquidityPool asset-id 
+        {
+          total-liquidity: (- (get total-liquidity pool) amount),
+          available-liquidity: (- (get available-liquidity pool) amount)
+        }
+      ))
+    (ok true)
   )
 )
 
